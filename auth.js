@@ -71,6 +71,65 @@
     return String(value || "").trim().toLowerCase();
   }
 
+  function getSessionStore() {
+    try {
+      return window.sessionStorage;
+    } catch (error) {
+      console.warn("Zero Gravity session storage is not available:", error);
+      return null;
+    }
+  }
+
+  function createAuthClient() {
+    const storage = getSessionStore();
+    const authOptions = {
+      persistSession: Boolean(storage),
+      autoRefreshToken: true,
+      detectSessionInUrl: true,
+    };
+
+    if (storage) {
+      authOptions.storage = storage;
+    }
+
+    return window.supabase.createClient(config.url, config.anonKey, {
+      auth: authOptions,
+    });
+  }
+
+  function hasCachedSession() {
+    if (!isConfigured()) {
+      return false;
+    }
+
+    const storage = getSessionStore();
+
+    if (!storage) {
+      return false;
+    }
+
+    try {
+      const projectRef = new URL(config.url).hostname.split(".")[0];
+      const key = `sb-${projectRef}-auth-token`;
+      const value = storage.getItem(key);
+
+      if (!value) {
+        return false;
+      }
+
+      const parsed = JSON.parse(value);
+      const session = parsed.currentSession || parsed;
+
+      return Boolean(
+        session?.access_token &&
+          (!session.expires_at || session.expires_at * 1000 > Date.now())
+      );
+    } catch (error) {
+      console.warn("Zero Gravity session cache check skipped:", error);
+      return false;
+    }
+  }
+
   function getDisplayName(user = currentUser) {
     if (!user) {
       return "";
@@ -121,7 +180,7 @@
   function getRequestedPath() {
     const searchParams = new URLSearchParams(window.location.search);
     const fromQuery = sanitizeReturnTo(searchParams.get("returnTo"));
-    const fromStorage = sanitizeReturnTo(window.localStorage.getItem(RETURN_TO_KEY));
+    const fromStorage = sanitizeReturnTo(getSessionStore()?.getItem(RETURN_TO_KEY));
     return fromQuery || fromStorage || "./index.html";
   }
 
@@ -132,11 +191,11 @@
       return;
     }
 
-    window.localStorage.setItem(RETURN_TO_KEY, safeValue);
+    getSessionStore()?.setItem(RETURN_TO_KEY, safeValue);
   }
 
   function clearReturnTo() {
-    window.localStorage.removeItem(RETURN_TO_KEY);
+    getSessionStore()?.removeItem(RETURN_TO_KEY);
   }
 
   function getLoginUrl(returnTo = `${window.location.pathname}${window.location.search}${window.location.hash}`) {
@@ -551,7 +610,7 @@
   }
 
   async function initAuth() {
-    if (isProtectedPage()) {
+    if (isProtectedPage() && !hasCachedSession()) {
       document.body?.classList.add("auth-checking");
     }
 
@@ -562,7 +621,7 @@
       return;
     }
 
-    client = window.supabase.createClient(config.url, config.anonKey);
+    client = createAuthClient();
 
     const {
       data: { session },

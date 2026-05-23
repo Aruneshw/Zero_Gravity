@@ -35,7 +35,7 @@ body {
   font-family: "Inter", sans-serif;
   line-height: 1.6;
   opacity: 0;
-  transition: opacity 400ms ease;
+  transition: opacity 200ms ease;
   position: relative;
   overflow-x: hidden;
 }
