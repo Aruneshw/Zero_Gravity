@@ -1,0 +1,163 @@
+<!DOCTYPE html>
+<html>
+<head>
+<title>AI Chatbot</title>
+
+<style>
+body {
+    font-family: Arial, sans-serif;
+}
+
+/* Chat button */
+#chat-btn {
+    position: fixed;
+    bottom: 20px;
+    right: 20px;
+    background: #007bff;
+    color: white;
+    border-radius: 50%;
+    width: 60px;
+    height: 60px;
+    border: none;
+    font-size: 24px;
+    cursor: pointer;
+}
+
+/* Chat box */
+#chat-box {
+    position: fixed;
+    bottom: 90px;
+    right: 20px;
+    width: 320px;
+    height: 420px;
+    background: white;
+    border-radius: 10px;
+    display: none;
+    flex-direction: column;
+    box-shadow: 0px 0px 10px rgba(0,0,0,0.2);
+}
+
+/* Messages area */
+#messages {
+    flex: 1;
+    padding: 10px;
+    overflow-y: auto;
+}
+
+/* Message bubbles */
+.message {
+    margin: 8px 0;
+    padding: 8px 12px;
+    border-radius: 10px;
+    max-width: 75%;
+}
+
+.user {
+    background: #007bff;
+    color: white;
+    margin-left: auto;
+}
+
+.bot {
+    background: #e5e5ea;
+}
+
+/* Input area */
+#input-area {
+    display: flex;
+    border-top: 1px solid #ccc;
+}
+
+#input-area input {
+    flex: 1;
+    padding: 10px;
+    border: none;
+    outline: none;
+}
+
+#input-area button {
+    padding: 10px;
+    background: #007bff;
+    color: white;
+    border: none;
+    cursor: pointer;
+}
+</style>
+
+</head>
+
+<body>
+
+<!-- Chat Button -->
+<button id="chat-btn" onclick="toggleChat()">💬</button>
+
+<!-- Chat Box -->
+<div id="chat-box">
+    <div id="messages"></div>
+
+    <div id="input-area">
+        <input id="userInput" placeholder="Type message..." />
+        <button onclick="sendMessage()">Send</button>
+    </div>
+</div>
+
+<script>
+
+// Toggle chat visibility
+function toggleChat() {
+    let box = document.getElementById("chat-box");
+    box.style.display = box.style.display === "flex" ? "none" : "flex";
+}
+
+// Send message function
+async function sendMessage() {
+    let input = document.getElementById("userInput");
+    let message = input.value.trim();
+
+    if (message === "") return;
+
+    let messages = document.getElementById("messages");
+
+    // User message
+    let userDiv = document.createElement("div");
+    userDiv.className = "message user";
+    userDiv.innerText = message;
+    messages.appendChild(userDiv);
+
+    input.value = "";
+
+    // Call backend
+    let response = await fetch("/chat", {
+        method: "POST",
+        headers: {
+            "Content-Type": "application/json"
+        },
+        body: JSON.stringify({ message: message })
+    });
+
+    let data = await response.json();
+
+    // Bot message
+    let botDiv = document.createElement("div");
+    botDiv.className = "message bot";
+    botDiv.innerText = data.reply;
+    messages.appendChild(botDiv);
+
+    // Auto scroll
+    messages.scrollTop = messages.scrollHeight;
+}
+
+// 🔥 ENTER KEY SUPPORT
+const input = document.getElementById("userInput");
+
+input.addEventListener("keydown", function(event) {
+    if (event.key === "Enter") {
+        event.preventDefault();
+        sendMessage();
+    }
+});
+
+</script>
+
+</body>
+</html>
