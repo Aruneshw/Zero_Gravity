@@ -1,0 +1,68 @@
+# ─────────────────────────────────────────────────────────────────────────────
+# Zero Gravity — Supabase Keep-Alive (GitHub Actions)
+#
+# Runs every 3 days AND on every push to main so the Supabase free-tier project
+# never pauses due to 1-week inactivity.
+#
+# Setup (one-time):
+#   1. Go to your GitHub repo → Settings → Secrets and variables → Actions
+#   2. Add two Repository secrets:
+#        SUPABASE_URL      → https://pmytmilrzojhhwfaatxf.supabase.co
+#        SUPABASE_ANON_KEY → (your anon key from supabase-config.js)
+# ─────────────────────────────────────────────────────────────────────────────
+
+name: Supabase Keep-Alive
+
+on:
+  schedule:
+    # Runs at 06:00 UTC every 3 days (day 1, 4, 7, 10, …)
+    - cron: "0 6 */3 * *"
+  push:
+    branches: [main]
+  workflow_dispatch:   # Allow manual trigger from GitHub UI
+
+jobs:
+  keepalive:
+    name: Ping Supabase DB
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+
+    steps:
+      - name: Ping Supabase REST health endpoint
+        env:
+          SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
+          SUPABASE_ANON_KEY: ${{ secrets.SUPABASE_ANON_KEY }}
+        run: |
+          echo "Pinging Supabase at $SUPABASE_URL …"
+
+          # HEAD request to the profiles table — lightest possible DB touch.
+          HTTP_STATUS=$(curl --silent --output /dev/null --write-out "%{http_code}" \
+            --max-time 20 \
+            --request HEAD \
+            "${SUPABASE_URL}/rest/v1/zg_profiles?select=id&limit=1" \
+            --header "apikey: ${SUPABASE_ANON_KEY}" \
+            --header "Authorization: Bearer ${SUPABASE_ANON_KEY}" \
+            --header "Range: 0-0")
+
+          echo "HTTP status: $HTTP_STATUS"
+
+          # 206 = Partial Content (range header hit), 200 = OK, 401 = table RLS
+          # Any of these confirms the project is alive.
+          if [[ "$HTTP_STATUS" =~ ^(200|206|401|403)$ ]]; then
+            echo "✅ Supabase is alive."
+          else
+            echo "⚠️  Unexpected status $HTTP_STATUS — project may be paused or URL is wrong."
+            exit 1
+          fi
+
+      - name: Ping Supabase Auth endpoint (secondary check)
+        env:
+          SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
+          SUPABASE_ANON_KEY: ${{ secrets.SUPABASE_ANON_KEY }}
+        run: |
+          HTTP_STATUS=$(curl --silent --output /dev/null --write-out "%{http_code}" \
+            --max-time 20 \
+            "${SUPABASE_URL}/auth/v1/health" \
+            --header "apikey: ${SUPABASE_ANON_KEY}")
+
+          echo "Auth health status: $HTTP_STATUS"
