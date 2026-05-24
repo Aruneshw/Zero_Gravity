@@ -152,6 +152,17 @@ function injectSiteChrome() {
           </div>
           <div class="footer-bottom">
             <span>© 2026 Team Zero Gravity. All rights reserved.</span>
+            <div class="theme-selector-wrap">
+              <span class="theme-selector-label">Theme</span>
+              <div class="theme-pill-switch">
+                <button class="theme-pill-btn" data-theme-btn="light" aria-label="Switch to light mode">
+                  <span class="theme-pill-icon">☀️</span> Light
+                </button>
+                <button class="theme-pill-btn" data-theme-btn="dark" aria-label="Switch to dark mode">
+                  <span class="theme-pill-icon">🌙</span> Dark
+                </button>
+              </div>
+            </div>
             <span>Built with ☕ + 🔥 from Tamil Nadu</span>
           </div>
         </div>
@@ -203,8 +214,49 @@ function setupMobileMenu() {
   });
 }
 
+function initThemeSwitcher() {
+  const lightBtn = document.querySelector('[data-theme-btn="light"]');
+  const darkBtn = document.querySelector('[data-theme-btn="dark"]');
+  if (!lightBtn || !darkBtn) return;
+
+  const updateThemeUI = (theme) => {
+    if (theme === "dark") {
+      darkBtn.classList.add("active");
+      lightBtn.classList.remove("active");
+    } else {
+      lightBtn.classList.add("active");
+      darkBtn.classList.remove("active");
+    }
+  };
+
+  // Determine active theme
+  const getActiveTheme = () => {
+    const saved = localStorage.getItem("theme");
+    if (saved) return saved;
+    return window.matchMedia("(prefers-color-scheme: dark)").matches ? "dark" : "light";
+  };
+
+  // Initial state setup
+  updateThemeUI(getActiveTheme());
+
+  const applyTheme = (theme) => {
+    if (theme === "dark") {
+      document.documentElement.setAttribute("data-theme", "dark");
+      localStorage.setItem("theme", "dark");
+    } else {
+      document.documentElement.setAttribute("data-theme", "light");
+      localStorage.setItem("theme", "light");
+    }
+    updateThemeUI(theme);
+  };
+
+  lightBtn.addEventListener("click", () => applyTheme("light"));
+  darkBtn.addEventListener("click", () => applyTheme("dark"));
+}
+
 document.addEventListener("DOMContentLoaded", () => {
   injectSiteChrome();
   markActiveLinks();
   setupMobileMenu();
+  initThemeSwitcher();
 });

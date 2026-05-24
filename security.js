@@ -14,6 +14,17 @@
 (function () {
   "use strict";
 
+  // Resolve and apply theme as early as possible to prevent flash of light mode
+  try {
+    const savedTheme = localStorage.getItem("theme");
+    if (savedTheme) {
+      document.documentElement.setAttribute("data-theme", savedTheme);
+    }
+  } catch (e) {
+    console.error("[ZG Security] Theme initialization failed:", e);
+  }
+
+
   /* ═══════════════════════════════════════════════════════════════════
      1. BOT / HEADLESS BROWSER DETECTION
      Uses multiple signals — any single check can be spoofed but the
