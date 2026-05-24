@@ -381,6 +381,26 @@
     return true;
   }
 
+  function getAvatarHtml(user, extraClass = "") {
+    const avatarUrl = user?.user_metadata?.avatar_url || null;
+    const initials = escapeHtml(getInitials(user));
+    const firstLetter = escapeHtml(getDisplayName(user).trim()[0]?.toUpperCase() || initials);
+    const classes = ["auth-avatar", extraClass].filter(Boolean).join(" ");
+
+    if (avatarUrl) {
+      return `<span class="${classes} auth-avatar-img-wrap">
+        <img
+          class="auth-avatar-photo"
+          src="${escapeHtml(avatarUrl)}"
+          alt="Profile photo"
+          onerror="this.parentElement.classList.remove('auth-avatar-img-wrap'); this.parentElement.removeChild(this); this.parentElement.textContent='${firstLetter}';"
+        />
+      </span>`;
+    }
+
+    return `<span class="${classes}">${firstLetter}</span>`;
+  }
+
   function renderAuthSlot(slot) {
     if (!slot) {
       return;
@@ -392,7 +412,6 @@
     }
 
     const displayName = escapeHtml(getDisplayName(currentUser));
-    const initials = escapeHtml(getInitials(currentUser));
     const email = currentUser.email
       ? `<span>${escapeHtml(currentUser.email)}</span>`
       : "<span>Signed in with Google</span>";
@@ -400,7 +419,7 @@
     slot.innerHTML = `
       <details class="auth-user-menu">
         <summary class="auth-user-trigger">
-          <span class="auth-avatar">${initials}</span>
+          ${getAvatarHtml(currentUser)}
           <span class="auth-user-name">${displayName}</span>
         </summary>
         <div class="auth-user-panel">
@@ -423,7 +442,7 @@
       container.innerHTML = `
         <div class="auth-summary-card">
           <div class="auth-summary-main">
-            <span class="auth-avatar auth-avatar-large">${escapeHtml(getInitials(currentUser))}</span>
+            ${getAvatarHtml(currentUser, "auth-avatar-large")}
             <div>
               <p class="auth-summary-title">Signed in as ${escapeHtml(getDisplayName(currentUser))}</p>
               <p class="auth-summary-copy">Your details are ready and linked to your profile.</p>
