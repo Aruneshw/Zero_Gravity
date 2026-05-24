@@ -133,7 +133,7 @@ function injectSiteChrome() {
                   .join("")}
               </div>
               <div class="footer-contact-info" style="margin-top: 1.5rem;">
-                <h4 style="font-size: 0.875rem; color: var(--color-text-muted); margin-bottom: 0.5rem; text-transform: uppercase; letter-spacing: 0.05em;">Reach Us</h4>
+                <h4 style="font-size: 0.875rem; color: rgba(255,255,255,0.5); margin-bottom: 0.5rem; text-transform: uppercase; letter-spacing: 0.05em;">Reach Us</h4>
                 <p class="footer-meta" style="margin-bottom: 0.25rem;">📧 <a href="mailto:teamzerogravityorg@gmail.com">teamzerogravityorg@gmail.com</a></p>
                 <p class="footer-meta" style="margin-bottom: 0.25rem;">📞 <a href="tel:+919095736279">+91 90957 36279</a></p>
                 <p class="footer-meta" style="margin-bottom: 0.25rem;">📞 <a href="tel:+917539988669">+91 75399 88669</a></p>
