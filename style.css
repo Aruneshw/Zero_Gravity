@@ -1469,10 +1469,32 @@ main {
 }
 
 .member-card {
+  display: block;
   padding: 1.7rem;
   position: relative;
   text-align: center;
   cursor: pointer;
+  overflow: hidden;
+}
+
+.founder-card {
+  min-height: 358px;
+}
+
+.member-profile-cue {
+  position: absolute;
+  top: 1rem;
+  right: 1rem;
+  z-index: 2;
+  padding: 0.38rem 0.6rem;
+  border: 1px solid rgba(0, 245, 212, 0.28);
+  border-radius: 999px;
+  background: rgba(0, 245, 212, 0.08);
+  color: var(--accent-cyan);
+  font-family: "JetBrains Mono", monospace;
+  font-size: 0.68rem;
+  text-transform: uppercase;
+  transition: transform var(--transition), background-color var(--transition), color var(--transition);
 }
 
 .approved-member-card {
@@ -1481,6 +1503,8 @@ main {
 }
 
 .member-card:focus-visible,
+.profile-back-link:focus-visible,
+.profile-social-button:focus-visible,
 .nav-toggle:focus-visible,
 .nav-link:focus-visible,
 .filter-chip:focus-visible,
@@ -1592,6 +1616,266 @@ select:focus-visible {
 
 .member-card:hover .member-name {
   color: var(--accent-cyan);
+}
+
+.member-card:hover .member-profile-cue,
+.member-card:focus-visible .member-profile-cue {
+  transform: translateY(-2px);
+  background: var(--accent-cyan);
+  color: #041414;
+}
+
+.founder-profile-page {
+  overflow: hidden;
+}
+
+.founder-hero {
+  min-height: 74vh;
+  padding: calc(var(--nav-height) + 3rem) 0 3.5rem;
+  display: flex;
+  align-items: center;
+  background:
+    linear-gradient(180deg, rgba(0, 245, 212, 0.07), transparent 38%),
+    linear-gradient(135deg, rgba(57, 255, 20, 0.05), transparent 34%, rgba(0, 245, 212, 0.05));
+}
+
+.founder-profile-shell {
+  display: grid;
+  gap: 1.2rem;
+}
+
+.profile-back-link {
+  width: fit-content;
+  display: inline-flex;
+  align-items: center;
+  min-height: 40px;
+  padding: 0.55rem 0.85rem;
+  border: 1px solid rgba(0, 245, 212, 0.26);
+  border-radius: 999px;
+  color: var(--accent-cyan);
+  font-family: "JetBrains Mono", monospace;
+  font-size: 0.78rem;
+  text-transform: uppercase;
+  background: rgba(0, 245, 212, 0.06);
+  transition: transform var(--transition), background-color var(--transition), color var(--transition), border-color var(--transition);
+}
+
+.profile-back-link:hover {
+  transform: translateY(-3px);
+  background: rgba(0, 245, 212, 0.12);
+  border-color: rgba(0, 245, 212, 0.46);
+}
+
+.founder-hero-card,
+.founder-about-card,
+.founder-social-card {
+  position: relative;
+  overflow: hidden;
+  border: 1px solid rgba(0, 245, 212, 0.22);
+  border-radius: 20px;
+  background:
+    linear-gradient(180deg, rgba(22, 22, 22, 0.84), rgba(8, 8, 8, 0.9)),
+    rgba(17, 17, 17, 0.82);
+  backdrop-filter: blur(18px);
+  -webkit-backdrop-filter: blur(18px);
+  box-shadow: 0 0 0 1px rgba(0, 245, 212, 0.06), 0 28px 70px rgba(0, 0, 0, 0.42);
+}
+
+.founder-hero-card::before,
+.founder-about-card::before,
+.founder-social-card::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background:
+    linear-gradient(90deg, transparent, rgba(0, 245, 212, 0.08), transparent),
+    repeating-linear-gradient(0deg, transparent 0 34px, rgba(0, 245, 212, 0.045) 35px 36px);
+  opacity: 0.58;
+  pointer-events: none;
+  animation: founderScan 14s linear infinite;
+}
+
+.founder-hero-card > *,
+.founder-about-card > *,
+.founder-social-card > * {
+  position: relative;
+  z-index: 1;
+}
+
+.founder-hero-card {
+  min-height: 430px;
+  padding: clamp(1.5rem, 4vw, 3rem);
+  display: grid;
+  grid-template-columns: minmax(210px, 320px) minmax(0, 1fr);
+  gap: clamp(1.5rem, 4vw, 3rem);
+  align-items: center;
+}
+
+.founder-photo-ring {
+  width: clamp(190px, 25vw, 280px);
+  aspect-ratio: 1;
+  margin: 0 auto;
+  display: grid;
+  place-items: center;
+  position: relative;
+  border-radius: 50%;
+}
+
+.founder-photo-ring::before {
+  content: "";
+  position: absolute;
+  inset: -8px;
+  border-radius: inherit;
+  background: conic-gradient(from 0deg, var(--accent-cyan), rgba(57, 255, 20, 0.9), transparent 48%, var(--accent-cyan));
+  animation: founderRingSpin 7s linear infinite;
+}
+
+.founder-photo-ring::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  background: #050505;
+}
+
+.founder-profile-photo {
+  width: calc(100% - 18px);
+  height: calc(100% - 18px);
+  object-fit: cover;
+  border-radius: 50%;
+  border: 1px solid rgba(0, 245, 212, 0.42);
+  box-shadow: 0 0 34px rgba(0, 245, 212, 0.18);
+  position: relative;
+  z-index: 1;
+}
+
+.founder-identity h1 {
+  margin: 0.85rem 0 0.35rem;
+  font-family: "Space Grotesk", sans-serif;
+  font-size: clamp(2.45rem, 6vw, 5rem);
+  line-height: 0.95;
+  text-transform: uppercase;
+}
+
+.founder-position {
+  margin: 0;
+  color: var(--accent-cyan);
+  font-family: "JetBrains Mono", monospace;
+  font-weight: 700;
+  text-transform: uppercase;
+}
+
+.founder-tagline {
+  max-width: 620px;
+  margin: 1rem 0 0;
+  color: var(--text);
+  font-size: clamp(1.08rem, 2vw, 1.35rem);
+}
+
+.founder-profile-section {
+  padding-top: 4rem;
+}
+
+.founder-detail-grid {
+  display: grid;
+  grid-template-columns: minmax(0, 1.08fr) minmax(320px, 0.92fr);
+  gap: 1.4rem;
+  align-items: start;
+}
+
+.founder-about-card,
+.founder-social-card {
+  padding: clamp(1.35rem, 3vw, 2rem);
+}
+
+.profile-section-title {
+  margin: 0.7rem 0 1rem;
+  font-family: "Space Grotesk", sans-serif;
+  font-size: clamp(1.4rem, 2.4vw, 2rem);
+  line-height: 1.12;
+}
+
+.founder-about-card p {
+  margin: 0;
+  color: var(--text-muted);
+  font-size: 1.08rem;
+}
+
+.profile-social-grid {
+  display: grid;
+  gap: 0.85rem;
+}
+
+.profile-social-button {
+  min-height: 58px;
+  display: flex;
+  align-items: center;
+  gap: 0.85rem;
+  padding: 0.95rem 1rem;
+  border: 1px solid rgba(0, 245, 212, 0.28);
+  border-radius: 14px;
+  background:
+    linear-gradient(90deg, rgba(0, 245, 212, 0.12), rgba(57, 255, 20, 0.05)),
+    rgba(255, 255, 255, 0.03);
+  color: var(--text);
+  font-family: "JetBrains Mono", monospace;
+  font-weight: 700;
+  transition: transform var(--transition), box-shadow var(--transition), border-color var(--transition), color var(--transition), background-color var(--transition);
+}
+
+.profile-social-button:hover {
+  transform: translateY(-4px);
+  border-color: rgba(0, 245, 212, 0.6);
+  color: var(--accent-cyan);
+  box-shadow: 0 0 0 1px rgba(0, 245, 212, 0.18), 0 18px 34px rgba(0, 245, 212, 0.14);
+}
+
+.profile-social-icon {
+  width: 34px;
+  height: 34px;
+  flex: 0 0 auto;
+  display: inline-grid;
+  place-items: center;
+  border-radius: 50%;
+  background: rgba(0, 245, 212, 0.1);
+  color: var(--accent-cyan);
+}
+
+.profile-social-icon svg {
+  width: 18px;
+  height: 18px;
+  fill: currentColor;
+}
+
+.profile-url-card {
+  margin-top: 1.1rem;
+  padding: 1rem;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 14px;
+  background: rgba(0, 0, 0, 0.24);
+}
+
+.profile-url-card a {
+  display: block;
+  margin-top: 0.35rem;
+  color: var(--accent-cyan);
+  overflow-wrap: anywhere;
+  font-size: 0.95rem;
+}
+
+@keyframes founderScan {
+  from {
+    background-position: 0 0, 0 0;
+  }
+  to {
+    background-position: 260px 0, 0 144px;
+  }
+}
+
+@keyframes founderRingSpin {
+  to {
+    transform: rotate(360deg);
+  }
 }
 
 .member-modal-overlay {
@@ -3055,7 +3339,9 @@ body.login-page::after {
 @media (max-width: 1024px) {
   .split-layout,
   .story-grid,
-  .contact-grid {
+  .contact-grid,
+  .founder-hero-card,
+  .founder-detail-grid {
     grid-template-columns: 1fr;
   }
 
@@ -3198,6 +3484,24 @@ body.login-page::after {
   .project-media img {
     height: 200px;
   }
+
+  .founder-hero {
+    min-height: auto;
+    padding-top: calc(var(--nav-height) + 2rem);
+  }
+
+  .founder-hero-card {
+    text-align: center;
+  }
+
+  .founder-tagline {
+    margin-left: auto;
+    margin-right: auto;
+  }
+
+  .profile-back-link {
+    margin: 0 auto;
+  }
 }
 
 @media (max-width: 480px) {
@@ -3256,6 +3560,35 @@ body.login-page::after {
   .team-preview-grid {
     display: grid;
     grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .founder-card {
+    min-height: 330px;
+  }
+
+  .member-profile-cue {
+    position: static;
+    display: inline-flex;
+    margin: 0 auto 0.8rem;
+  }
+
+  .founder-hero-card,
+  .founder-about-card,
+  .founder-social-card {
+    border-radius: 18px;
+  }
+
+  .founder-hero-card {
+    min-height: auto;
+    padding: 1.35rem;
+  }
+
+  .founder-photo-ring {
+    width: min(72vw, 220px);
+  }
+
+  .profile-social-button {
+    min-height: 56px;
   }
 
   .page-hero {

@@ -14,6 +14,20 @@
     resolveAuthReady = resolve;
   });
 
+  function getSiteRoot() {
+    const rawRoot =
+      document.documentElement?.dataset.siteRoot ||
+      document.body?.dataset.siteRoot ||
+      window.ZERO_GRAVITY_SITE_ROOT ||
+      "./";
+
+    return rawRoot.endsWith("/") ? rawRoot : `${rawRoot}/`;
+  }
+
+  function getRootPageUrl(fileName) {
+    return new URL(`${getSiteRoot()}${fileName}`, window.location.href);
+  }
+
   function escapeHtml(value) {
     return String(value)
       .replaceAll("&", "&amp;")
@@ -199,7 +213,7 @@
   }
 
   function getLoginUrl(returnTo = `${window.location.pathname}${window.location.search}${window.location.hash}`) {
-    const loginUrl = new URL(`./${LOGIN_FILE}`, window.location.href);
+    const loginUrl = getRootPageUrl(LOGIN_FILE);
     const safeReturnTo = sanitizeReturnTo(returnTo);
 
     if (safeReturnTo) {
@@ -210,11 +224,11 @@
   }
 
   function getAccessDeniedUrl() {
-    return new URL(`./${ACCESS_DENIED_FILE}`, window.location.href).toString();
+    return getRootPageUrl(ACCESS_DENIED_FILE).toString();
   }
 
   function getOAuthRedirectUrl() {
-    const loginUrl = new URL(`./${LOGIN_FILE}`, window.location.href);
+    const loginUrl = getRootPageUrl(LOGIN_FILE);
     const targetPath = getRequestedPath();
 
     if (targetPath) {

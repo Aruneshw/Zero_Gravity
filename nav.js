@@ -30,10 +30,48 @@ const socialLinks = [
   },
 ];
 
+function getSiteRoot() {
+  const rawRoot =
+    document.documentElement?.dataset.siteRoot ||
+    document.body?.dataset.siteRoot ||
+    window.ZERO_GRAVITY_SITE_ROOT ||
+    "./";
+
+  return rawRoot.endsWith("/") ? rawRoot : `${rawRoot}/`;
+}
+
+function withSiteRoot(path) {
+  if (/^(https?:|mailto:|tel:|#)/.test(path)) {
+    return path;
+  }
+
+  const cleanPath = path.replace(/^\.\//, "");
+  return `${getSiteRoot()}${cleanPath}`;
+}
+
 function normalizePathname(pathname) {
   const cleaned = pathname.endsWith("/") ? `${pathname}index.html` : pathname;
   const file = cleaned.split("/").filter(Boolean).pop();
   return file || "index.html";
+}
+
+function normalizeComparablePath(pathname) {
+  const cleaned = pathname.endsWith("/") ? `${pathname}index.html` : pathname;
+  return cleaned.replace(/\/+/g, "/");
+}
+
+function isActiveNavTarget(href) {
+  const targetPath = normalizeComparablePath(new URL(href, window.location.href).pathname);
+  const currentPath = normalizeComparablePath(window.location.pathname);
+
+  if (targetPath === currentPath) {
+    return true;
+  }
+
+  const currentSegments = window.location.pathname.split("/").filter(Boolean);
+  const targetFile = normalizePathname(targetPath);
+
+  return targetFile === "about.html" && currentSegments.includes("about");
 }
 
 function getSocialIcon(type) {
@@ -53,7 +91,7 @@ function createNavLinks(className = "nav-link") {
   return navigationLinks
     .map(
       ({ label, href }, index) =>
-        `<a class="${className}" href="${href}" style="--nav-index:${index}">${label}</a>`
+        `<a class="${className}" href="${withSiteRoot(href)}" style="--nav-index:${index}">${label}</a>`
     )
     .join("");
 }
@@ -66,9 +104,9 @@ function injectSiteChrome() {
     navMount.innerHTML = `
       <header class="site-nav">
         <div class="nav-inner">
-          <a class="brand" href="./index.html" aria-label="Team Zero Gravity home">
+          <a class="brand" href="${withSiteRoot("./index.html")}" aria-label="Team Zero Gravity home">
             <span class="logo-badge brand-logo-shell" aria-hidden="true">
-              <img class="brand-logo" src="./LOGO.png" alt="Team Zero Gravity logo" />
+              <img class="brand-logo" src="${withSiteRoot("./LOGO.png")}" alt="Team Zero Gravity logo" />
             </span>
             <span class="brand-wordmark">ZERO GRAVITY</span>
           </a>
@@ -78,14 +116,14 @@ function injectSiteChrome() {
           <div class="nav-actions">
             <div class="auth-slot desktop-auth" id="nav-auth-desktop"></div>
             <button class="nav-signin" type="button" data-auth-action="signin">Sign in with Google</button>
-            <a class="nav-cta" href="./join.html#registration-process">Join Now</a>
+            <a class="nav-cta" href="${withSiteRoot("./join.html#registration-process")}">Join Now</a>
             <button class="nav-toggle" type="button" aria-expanded="false" aria-controls="mobile-nav" aria-label="Open navigation menu">☰</button>
           </div>
         </div>
       </header>
       <nav class="nav-overlay" id="mobile-nav" aria-label="Mobile navigation">
         ${createNavLinks("nav-link mobile-nav-link")}
-        <a class="nav-cta" href="./join.html#registration-process">Join Now</a>
+        <a class="nav-cta" href="${withSiteRoot("./join.html#registration-process")}">Join Now</a>
         <button class="nav-signin mobile-nav-signin" type="button" data-auth-action="signin">Sign in with Google</button>
         <div class="auth-slot mobile-auth" id="nav-auth-mobile"></div>
       </nav>
@@ -98,9 +136,9 @@ function injectSiteChrome() {
         <div class="footer-inner">
           <div class="footer-grid">
             <div class="footer-brand-col">
-              <a class="brand" href="./index.html" aria-label="Team Zero Gravity home">
+              <a class="brand" href="${withSiteRoot("./index.html")}" aria-label="Team Zero Gravity home">
                 <span class="logo-badge brand-logo-shell" aria-hidden="true">
-                  <img class="brand-logo" src="./LOGO.png" alt="Team Zero Gravity logo" />
+                  <img class="brand-logo" src="${withSiteRoot("./LOGO.png")}" alt="Team Zero Gravity logo" />
                 </span>
                 <span class="brand-wordmark">ZERO GRAVITY</span>
               </a>
@@ -112,7 +150,7 @@ function injectSiteChrome() {
               <p class="footer-copy footer-policy-note">Clear guidelines for visitors, enquiries, and member applications.</p>
               <div class="footer-links">
                 ${policyLinks
-                  .map(({ label, href }) => `<a href="${href}">${label}</a>`)
+                  .map(({ label, href }) => `<a href="${withSiteRoot(href)}">${label}</a>`)
                   .join("")}
               </div>
             </div>
@@ -172,11 +210,9 @@ function injectSiteChrome() {
 }
 
 function markActiveLinks() {
-  const currentFile = normalizePathname(window.location.pathname);
   document.querySelectorAll(".nav-link").forEach((link) => {
     const href = link.getAttribute("href");
-    const targetFile = normalizePathname(new URL(href, window.location.href).pathname);
-    if (targetFile === currentFile) {
+    if (isActiveNavTarget(href)) {
       link.classList.add("active");
     }
   });
